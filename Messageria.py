@@ -8,17 +8,23 @@ class Mensageria:
         self.user = None
 
 
-    def showMessages(self):
+    def getRemetentes(self):
         print("Suas mensagens:")
         messages = self.db.getUserMessages(self.user.nome)
         if(len(messages) == 0):
             print("Você não tem nenhuma mensagem.\n")
+            return -1
         else:
-            print(messages)
+            remetentes = []
+            for item in messages:
+                remetentes.append(item["remetente"])
+            print(f"Você tem mensagens de: {remetentes}" )
+            return remetentes
 
-    def sendMessage(self, destinatario, title, body):
-        result = self.db.createMessage(self.user.nome, destinatario, title, body,)
-        if(result == -1): print("O titulo pode ter no máximo 20 caracteres.")
+
+
+    def sendMessage(self, destinatario, title, body, key):
+        self.db.createMessage(self.user.nome, destinatario, title, body, key)
 
 
     def start(self):
@@ -44,15 +50,33 @@ class Mensageria:
                         sel2 = int(input())
                         if(sel2!= 1 and sel2!=2 and sel2!=3): sel2 = int(input("Digite uma opção válida:\n"))
                         if(sel2 == 1):
-                            self.showMessages()
+                            r = self.getRemetentes()
+                            if(r != -1):
+                                user = input("Digite o nome do usuário que deseja visualizar as mensagens: ")
+                                if(user[0] != '@'): user = '@' + user
+                                while(not user):
+                                    user = input("Digite um usuario válido: ")
+                                    while(user not in r):
+                                        user = input("Usuario incorreto, digite novamente: ")
+                                key = input("Digite a chave que você combinou com esse usuário:\n").encode()
+                                m = self.db.getUserMessagesFrom(self.user.nome, user, key)
+                                if not m:
+                                    print("Nenhuma mensagem disponível (talvez a chave esteja errada).")
+                                else:
+                                    for msg in m:
+                                        print(f"De {msg['remetente']} - Título: {msg['titulo']} - Corpo: {msg['corpo']}")
+
                         if(sel2 == 2):
-                            title = input("Digite o titulo da mensagem(máximo 20 caracteres):\n")
+                            key = input("Digite a chave de criptografia que você combinou com seu destinatário:\n").encode()
+                            title = input("Digite o titulo da mensagem(máximo 30 caracteres):\n")
+                            while(len(title) > 30):
+                                title = input("Digite o titulo da mensagem(máximo 30 caracteres):\n")
                             body = input("Digite o corpo da mensagem:\n")
                             destinatario = input("Digite para quem você quer enviar essa mensagem:\n")
+                            if(destinatario[0] != '@'): destinatario = '@' + destinatario
                             if(self.db.login(destinatario) == None):
                                 destinatario = input("Usuario não encontrado, tente novamente:\n")
-                            if(destinatario[0] != '@'): destinatario = '@' + destinatario
-                            self.sendMessage(destinatario, title, body)
+                            self.sendMessage(destinatario, title, body, key)
                         if(sel2 == 3):
                             self.user = None
                             
