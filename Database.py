@@ -35,6 +35,7 @@ class Database:
 
             if(titulo is None or corpo is None):
                 print("A chave está incorreta.")
+                return
 
             msg["titulo"] = titulo
             msg["corpo"] = corpo
