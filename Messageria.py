@@ -11,10 +11,10 @@ class Mensageria:
     def getRemetentes(self):
         messages = self.db.getUserMessages(self.user.nome)
         if(len(messages) == 0):
-            print("##Você não tem nenhuma mensagem.\n")
+            print("\n\n##Você não tem nenhuma mensagem.\n")
             return -1
         else:
-            remetentes = {item["remetente"] for item in messages}
+            remetentes = {item["remetente"].replace("@", "") for item in messages}
             remetentes = list(remetentes)
             print(f"##Você tem mensagens de: {', '.join(remetentes)}" )
             return remetentes
@@ -53,16 +53,16 @@ class Mensageria:
                                 user = input("#Digite o nome do usuário que deseja visualizar as mensagens: ")
                                 while(not user):
                                     user = input("#Digite um usuario válido: ")
-                                if(user[0] != '@'): user = '@' + user
                                 while(user not in r):
                                     user = input("#Usuario não encontrado, digite novamente: ")
+                                if(user[0] != '@'): user = '@' + user
                                 key = input("#Digite a chave que você combinou com esse usuário:\n").encode()
                                 m = self.db.getUserMessagesFrom(self.user.nome, user, key)
                                 if not m:
                                     print("#Nenhuma mensagem disponível (talvez a chave esteja errada).")
                                 else:
                                     for msg in m:
-                                        print(f"##\n\nDe {msg['remetente']}\n Título: {msg['titulo']}\n Corpo: {msg['corpo']}")
+                                        print(f"##\n\nDe {msg['remetente']}\n Data:{msg['enviadoEm'].strftime("%d/%m/%Y %H:%M:%S")}\n Título: {msg['titulo']}\n Corpo: {msg['corpo']}")
 
                         if(sel2 == 2):
                             key = input("#Digite a chave de criptografia que você combinou com seu destinatário:\n").encode()

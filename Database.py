@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv 
 import os
+from datetime import datetime, timezone
 
 from Crypto import Crypto
 
@@ -24,7 +25,7 @@ class Database:
 
     
     def getUserMessagesFrom(self, name, user, key):
-        messages = self.db["messages"].find({"destinatario": name, "remetente" : user})
+        messages = self.db["messages"].find({"destinatario": name, "remetente" : user}).sort([("enviadoEm", -1)])
         crypto = Crypto(key)
         m_descriptografadas = []
         for m in messages:
@@ -40,6 +41,8 @@ class Database:
             msg["titulo"] = titulo
             msg["corpo"] = corpo
             m_descriptografadas.append(msg)
+
+            self.db["messages"].delete_one({"_id": m["_id"]})
         return list(m_descriptografadas)
         
         
@@ -50,10 +53,11 @@ class Database:
             "corpo" : crypto.encrypt(body, key).decode(),
             "remetente": remetente,
             "destinatario" : destinatario,
+            "enviadoEm" : datetime.now(timezone.utc)
         }
         try:
             self.db["messages"].insert_one(message)
-            print("Mensagem enviada\n")
+            print("\n###Mensagem enviada###\n")
         except PyMongoError as e:
             print("Erro ao enviar mensagem: ", e)
 
