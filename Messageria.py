@@ -72,9 +72,10 @@ class Mensageria:
                             body = input("#Digite o corpo da mensagem:\n")
                             destinatario = input("#Digite para quem você quer enviar essa mensagem:\n")
                             if(destinatario[0] != '@'): destinatario = '@' + destinatario
-                            if(self.db.login(destinatario) == None):
+                            while(self.db.login(destinatario) == None):
                                 destinatario = input("#Usuario não encontrado, tente novamente:\n")
-                            self.sendMessage(destinatario, title, body, key)
+                                if(destinatario[0] != '@'): destinatario = '@' + destinatario
+                                self.sendMessage(destinatario, title, body, key)
                         if(sel2 == 3):
                             self.user = None
                             
