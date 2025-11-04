@@ -70,12 +70,22 @@ class Mensageria:
                             while(len(title) > 30):
                                 title = input("#Digite o titulo da mensagem(máximo 30 caracteres):\n")
                             body = input("#Digite o corpo da mensagem:\n")
-                            destinatario = input("#Digite para quem você quer enviar essa mensagem:\n")
-                            if(destinatario[0] != '@'): destinatario = '@' + destinatario
-                            while(self.db.login(destinatario) == None):
-                                destinatario = input("#Usuario não encontrado, tente novamente:\n")
-                                if(destinatario[0] != '@'): destinatario = '@' + destinatario
-                                self.sendMessage(destinatario, title, body, key)
+                            user_valido = False
+                            destinatario = ""
+                            while not user_valido:
+                                destinatario = input("#Digite para quem você quer enviar essa mensagem:\n")
+
+                                if not destinatario:
+                                    print("O nome do destinatário não pode ser vazio.")
+                                    continue 
+                                if not destinatario.startswith('@'):
+                                    destinatario = '@' + destinatario
+                                if self.db.login(destinatario) != None:
+                                    user_valido = True 
+                                else:
+                                    print("#Usuario não encontrado, tente novamente:")
+                            
+                            self.sendMessage(destinatario, title, body, key)
                         if(sel2 == 3):
                             self.user = None
                             
